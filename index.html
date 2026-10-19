@@ -120,6 +120,20 @@ svg .base { stroke: var(--ink-2); stroke-width: 1; }
 .lang .v b { color: var(--ink); font-weight: 500; }
 .lang.other .fill { background: var(--h2); }
 
+/* Hosts per year: one stacked strip per year, GitHub share in solid blue */
+.years { display: grid; gap: 6px; margin-top: 28px; }
+.yr { display: grid; grid-template-columns: 110px 1fr 120px; gap: 14px; align-items: center; font: 400 13px/1 var(--mono); }
+.yr .strip { display: flex; height: 10px; gap: 2px; }
+.yr .strip i { display: block; height: 100%; min-width: 2px; }
+.yr .strip i:last-child { border-radius: 0 4px 4px 0; }
+.yr .v { text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.seg-gh { background: var(--blue); }
+.seg-off { background: var(--h2); }
+.yr-key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font: 400 12px/1 var(--mono); color: var(--muted); }
+.yr-key span { display: inline-flex; align-items: center; gap: 6px; }
+.yr-key i { width: 12px; height: 12px; border-radius: 2px; display: block; }
+@media (max-width: 760px) { .yr { grid-template-columns: 52px 1fr 64px; gap: 10px; } }
+
 /* Unit chart: one square per project */
 .units { display: grid; gap: 12px; }
 .unit { display: grid; grid-template-columns: 110px 1fr 36px; gap: 14px; align-items: center; font-size: 15px; }
@@ -197,6 +211,18 @@ footer p { margin: 0; max-width: 62ch; }
     </div>
   </section>
 
+  <section aria-labelledby="t-host">
+    <div class="rail">
+      <h2 id="t-host">Onde o trabalho aconteceu</h2>
+      <p>A maior parte do código foi para Bitbucket e GitLab, em repositórios privados de clientes. O perfil do GitHub mostra só uma fração.</p>
+      <dl class="facts" id="f-host"></dl>
+    </div>
+    <div class="chart">
+      <div class="langs" id="hosts"></div>
+      <div class="years" id="years" aria-label="Commits por ano e por plataforma"></div>
+    </div>
+  </section>
+
   <section aria-labelledby="t-lang">
     <div class="rail">
       <h2 id="t-lang">Linhas por linguagem</h2>
@@ -226,7 +252,7 @@ footer p { margin: 0; max-width: 62ch; }
   </section>
 
   <footer>
-    <p>Dados de 82 repositórios git na minha máquina, contados por um script local. Só os totais são publicados.</p>
+    <p>Dados de 82 repositórios git na minha máquina, contados por um script local. Cada commit conta uma vez, mesmo com mais de um clone. Só os totais são publicados.</p>
     <p>Atualizado em 19 out 2026</p>
   </footer>
 </div>
@@ -234,11 +260,13 @@ footer p { margin: 0; max-width: 62ch; }
 
 <script>
 const DATA = {
-  commits: 6419, authored: 665774, projects: 121,
-  langs: [["Java",286913],["JavaScript",172998],["TypeScript",129254],["CSS",24461],["Python",24011],["HTML",20670],["SQL",3727],["Shell",1646],["Groovy",871],["Dart",860],["Kotlin",227],["Objective-C",122],["Swift",8],["C",6]],
+  commits: 4114, authored: 480102, projects: 121,
+  langs: [["Java",209766],["TypeScript",109330],["JavaScript",93521],["Python",24011],["HTML",19050],["CSS",18917],["SQL",1901],["Shell",1623],["Dart",860],["Groovy",769],["Kotlin",227],["Objective-C",113],["Swift",8],["C",6]],
   main: [["Java",47],["JavaScript",39],["Python",13],["TypeScript",11],["HTML",6],["Dart",1],["Groovy",1],["CSS",1],["Shell",1],["C++",1]],
-  month: {"2016-11":1,"2017-01":1,"2017-02":1,"2017-04":2,"2017-05":3,"2017-06":5,"2017-09":2,"2017-10":21,"2017-11":24,"2017-12":4,"2018-02":10,"2018-03":11,"2018-04":8,"2018-05":7,"2018-06":4,"2018-07":6,"2018-08":8,"2019-01":1,"2019-04":3,"2019-05":22,"2019-06":3,"2019-08":5,"2019-09":2,"2019-10":6,"2020-01":3,"2020-02":1,"2020-06":2,"2020-11":7,"2021-01":2,"2021-02":2,"2021-03":2,"2021-06":9,"2021-07":1,"2021-08":1,"2021-09":4,"2021-12":1,"2022-07":3,"2023-01":8,"2023-02":3,"2023-03":8,"2023-04":312,"2023-05":571,"2023-06":513,"2023-07":431,"2023-08":313,"2023-09":261,"2023-10":200,"2023-11":310,"2023-12":223,"2024-01":144,"2024-02":74,"2024-03":163,"2024-04":185,"2024-05":385,"2024-06":155,"2024-07":130,"2024-08":100,"2024-09":161,"2024-10":43,"2024-11":2,"2024-12":36,"2025-01":30,"2025-02":78,"2025-03":77,"2025-04":82,"2025-05":92,"2025-06":58,"2025-07":44,"2025-08":37,"2025-09":49,"2025-10":85,"2025-11":39,"2025-12":42,"2026-01":35,"2026-02":58,"2026-03":87,"2026-04":65,"2026-05":65,"2026-06":36,"2026-07":79,"2026-08":35,"2026-09":3,"2026-10":314},
-  grid: {"4-15":94,"5-1":11,"0-8":112,"4-14":101,"3-16":143,"2-10":105,"1-18":128,"0-18":141,"0-17":157,"0-15":188,"0-14":132,"4-10":92,"3-15":173,"4-8":94,"1-13":69,"1-10":124,"2-9":89,"0-16":130,"4-17":142,"4-9":108,"1-8":106,"4-18":117,"3-18":141,"2-17":181,"1-17":163,"2-18":84,"2-16":111,"1-14":138,"1-12":17,"1-16":97,"1-11":135,"2-15":164,"2-14":107,"3-17":125,"0-13":55,"3-13":76,"3-10":80,"3-14":145,"3-9":59,"3-8":110,"0-11":129,"0-9":100,"5-9":9,"2-11":134,"1-15":158,"4-16":95,"3-11":133,"4-11":145,"2-13":72,"2-8":80,"4-13":33,"4-19":31,"1-9":151,"0-10":180,"3-1":4,"1-0":4,"0-19":29,"4-12":10,"0-12":17,"2-21":6,"2-19":5,"4-21":31,"2-20":13,"1-19":13,"2-23":6,"3-12":37,"3-23":7,"4-0":3,"1-7":6,"2-22":3,"1-22":8,"4-7":8,"0-20":1,"4-20":5,"2-0":2,"2-12":6,"2-7":10,"1-20":10,"1-23":4,"4-23":7,"1-21":8,"5-16":5,"5-14":3,"5-12":1,"3-7":13,"4-6":2,"5-10":9,"0-23":1,"0-7":2,"6-12":20,"6-11":25,"6-10":18,"6-5":8,"6-0":6,"5-20":1,"5-19":4,"5-17":2,"5-13":4,"5-11":5,"5-8":4,"5-7":3,"5-0":8,"4-22":11,"6-21":1,"6-19":1,"6-22":1,"1-1":1,"2-1":1,"3-20":1,"0-6":1}
+  host: [["Bitbucket",2709],["GitLab",781],["GitHub",363],["Só local",261]],
+  hostYear: {"2016":{"GitHub":1},"2017":{"GitHub":63},"2018":{"GitHub":54},"2019":{"GitHub":42},"2020":{"GitHub":13},"2021":{"GitHub":22},"2022":{"GitHub":3},"2023":{"Só local":4,"Bitbucket":709,"GitLab":610,"GitHub":19},"2024":{"Bitbucket":933,"GitLab":169,"Só local":1,"GitHub":35},"2025":{"Bitbucket":656,"GitLab":2,"GitHub":1},"2026":{"Bitbucket":411,"GitHub":110,"Só local":256}},
+  month: {"2016-11":1,"2017-01":1,"2017-02":1,"2017-04":2,"2017-05":3,"2017-06":5,"2017-09":2,"2017-10":21,"2017-11":24,"2017-12":4,"2018-02":10,"2018-03":11,"2018-04":8,"2018-05":7,"2018-06":4,"2018-07":6,"2018-08":8,"2019-01":1,"2019-04":3,"2019-05":22,"2019-06":3,"2019-08":5,"2019-09":2,"2019-10":6,"2020-01":3,"2020-02":1,"2020-06":2,"2020-11":7,"2021-01":2,"2021-02":2,"2021-03":2,"2021-06":9,"2021-07":1,"2021-08":1,"2021-09":4,"2021-12":1,"2022-07":3,"2023-01":8,"2023-02":3,"2023-03":8,"2023-04":104,"2023-05":191,"2023-06":177,"2023-07":168,"2023-08":197,"2023-09":137,"2023-10":99,"2023-11":138,"2023-12":112,"2024-01":82,"2024-02":41,"2024-03":159,"2024-04":157,"2024-05":186,"2024-06":137,"2024-07":104,"2024-08":74,"2024-09":119,"2024-10":41,"2024-11":2,"2024-12":36,"2025-01":30,"2025-02":66,"2025-03":52,"2025-04":66,"2025-05":91,"2025-06":58,"2025-07":44,"2025-08":37,"2025-09":49,"2025-10":85,"2025-11":39,"2025-12":42,"2026-01":35,"2026-02":58,"2026-03":87,"2026-04":65,"2026-05":65,"2026-06":36,"2026-07":79,"2026-08":35,"2026-09":3,"2026-10":314},
+  grid: {"4-15":69,"5-1":9,"0-8":68,"4-14":75,"3-16":115,"2-10":82,"1-18":77,"0-18":72,"0-17":103,"0-15":100,"0-14":80,"4-10":57,"3-15":126,"4-8":59,"1-13":43,"1-10":74,"2-9":60,"0-16":75,"4-17":88,"4-9":71,"1-8":81,"4-18":69,"3-18":78,"2-17":112,"1-17":106,"2-18":46,"2-16":73,"1-14":80,"1-12":12,"1-16":59,"1-11":83,"2-15":103,"2-14":70,"3-17":83,"0-13":41,"3-13":44,"3-10":53,"3-14":90,"3-9":50,"3-8":80,"0-11":79,"0-9":60,"5-9":8,"2-11":89,"1-15":91,"4-16":71,"3-11":86,"4-11":88,"2-13":47,"2-8":47,"4-13":24,"4-19":23,"1-9":77,"0-10":94,"3-1":2,"1-0":2,"0-19":10,"4-12":8,"0-12":9,"2-21":3,"2-19":4,"4-21":19,"2-20":5,"1-19":6,"2-23":3,"3-12":23,"3-23":3,"4-0":1,"1-7":4,"2-22":1,"1-22":4,"4-7":6,"0-20":1,"4-20":5,"2-0":2,"2-12":6,"2-7":6,"1-20":6,"1-23":2,"4-23":5,"1-21":6,"5-16":5,"5-14":3,"5-12":1,"3-7":13,"4-6":2,"5-10":9,"0-23":1,"0-7":2,"6-12":20,"6-11":25,"6-10":18,"6-5":8,"6-0":6,"5-20":1,"5-19":4,"5-17":2,"5-13":4,"5-11":5,"5-8":4,"5-7":3,"5-0":8,"4-22":11,"6-21":1,"6-19":1,"6-22":1,"1-1":1,"2-1":1,"3-20":1,"0-6":1}
 };
 
 const fmt = n => n.toLocaleString("pt-BR");
@@ -284,8 +312,10 @@ const months = [];
   const W = 820, H = 260, L = 34, R = 6, T = 12, B = 26;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.style.minWidth = "560px"; svg.style.width = "100%";
-  const max = 600, y = v => T + (H - T - B) * (1 - v / max);
-  for (const t of [0, 200, 400, 600]) {
+  const top = Math.max(...months.map(d => d.v));
+  const step = Math.ceil(top / 3 / 50) * 50, max = step * 3;
+  const y = v => T + (H - T - B) * (1 - v / max);
+  for (const t of [0, step, step * 2, max]) {
     el("line", { x1: L, x2: W - R, y1: y(t), y2: y(t), class: t ? "grid" : "base" }, svg);
     el("text", { x: L - 6, y: y(t) + 4, "text-anchor": "end" }, svg).textContent = t;
   }
@@ -302,10 +332,12 @@ const months = [];
     const partial = d.k === "2026-10" ? " · parcial" : "";
     hit.addEventListener("mousemove", ev => show(ev, `${MES[d.m - 1]} ${d.y} · ${fmt(d.v)} commits${partial}`));
     hit.addEventListener("mouseleave", hide);
-    if (d.m === 1 || i === 0) el("text", { x: L + i * band, y: H - 8 }, svg).textContent = d.y;
+    // First label only if the next January is far enough away to not overlap.
+    if (d.m === 1 || (i === 0 && d.m <= 7)) el("text", { x: L + i * band, y: H - 8 }, svg).textContent = d.y;
   });
   const px = L + months.indexOf(peak) * band + band / 2;
-  el("text", { x: px + 8, y: y(peak.v) + 4, style: "fill: var(--ink)" }, svg).textContent = `pico ${fmt(peak.v)}`;
+  const right = px > W * 0.8;
+  el("text", { x: right ? px - 8 : px + 8, y: y(peak.v) + 4, "text-anchor": right ? "end" : "start", style: "fill: var(--ink)" }, svg).textContent = `pico ${fmt(peak.v)}`;
 
   const f = document.getElementById("f-month");
   fact(f, "Mês com mais commits", `${MES[peak.m - 1]} ${peak.y} · ${peak.v}`);
@@ -340,6 +372,42 @@ const months = [];
   });
 }
 
+/* hosts */
+{
+  const total = DATA.host.reduce((s, [, v]) => s + v, 0);
+  const max = DATA.host[0][1];
+  document.getElementById("hosts").innerHTML = DATA.host.map(([n, v]) => {
+    const pct = (v / total * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+    return `<div class="lang ${n === "GitHub" ? "" : "other"}" data-tip="${n}: ${fmt(v)} commits">
+      <span>${n}</span>
+      <div class="track"><div class="fill" style="width:${(v / max * 100).toFixed(2)}%"></div></div>
+      <span class="v"><b>${pct}%</b> · ${fmt(v)}</span>
+    </div>`;
+  }).join("");
+  document.querySelectorAll("#hosts .lang").forEach(r => {
+    r.addEventListener("mousemove", ev => show(ev, r.dataset.tip));
+    r.addEventListener("mouseleave", hide);
+  });
+  const gh = (DATA.host.find(([n]) => n === "GitHub") || [0, 0])[1];
+  const f = document.getElementById("f-host");
+  fact(f, "Visível no GitHub", (gh / total * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "% dos commits");
+  fact(f, "Fora do GitHub", `${fmt(total - gh)} commits`);
+
+  const yrs = Object.entries(DATA.hostYear);
+  const ymax = Math.max(...yrs.map(([, h]) => Object.values(h).reduce((a, b) => a + b, 0)));
+  const box = document.getElementById("years");
+  box.innerHTML = yrs.map(([yr, h]) => {
+    const g = h.GitHub || 0, all = Object.values(h).reduce((a, b) => a + b, 0), off = all - g;
+    const seg = (cls, v) => v ? `<i class="${cls}" style="width:${(v / ymax * 100).toFixed(2)}%"></i>` : "";
+    return `<div class="yr" data-tip="${yr} · ${fmt(all)} commits · ${fmt(g)} no GitHub">
+      <span>${yr}</span><div class="strip">${seg("seg-gh", g)}${seg("seg-off", off)}</div><span class="v">${fmt(all)}</span></div>`;
+  }).join("") + `<div class="yr-key"><span><i class="seg-gh"></i>GitHub</span><span><i class="seg-off"></i>Bitbucket, GitLab e local</span></div>`;
+  box.querySelectorAll(".yr").forEach(r => {
+    r.addEventListener("mousemove", ev => show(ev, r.dataset.tip));
+    r.addEventListener("mouseleave", hide);
+  });
+}
+
 /* main language per project */
 {
   const top = DATA.main.slice(0, 5);
@@ -355,7 +423,7 @@ const months = [];
   const L = 40, T = 22, cw = 32, ch = 26, W = L + cw * 24 + 4, H = T + ch * 7 + 4;
   svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
   svg.style.minWidth = "620px"; svg.style.width = "100%";
-  const steps = [[0, "var(--h0)"], [1, "var(--h1)"], [40, "var(--h2)"], [100, "var(--h3)"], [150, "var(--h4)"]];
+  const steps = [[0, "var(--h0)"], [1, "var(--h1)"], [20, "var(--h2)"], [50, "var(--h3)"], [90, "var(--h4)"]];
   const color = v => steps.filter(([t]) => v >= t).pop()[1];
   for (let h = 0; h < 24; h += 3) el("text", { x: L + h * cw + 2, y: 12 }, svg).textContent = `${h}h`;
   const byDay = Array(7).fill(0), byHour = Array(24).fill(0);
@@ -370,7 +438,7 @@ const months = [];
     }
   }
   document.getElementById("heat-legend").innerHTML =
-    `<span>0</span>${steps.map(([, c]) => `<i style="background:${c}"></i>`).join("")}<span>150+ commits</span>`;
+    `<span>0</span>${steps.map(([, c]) => `<i style="background:${c}"></i>`).join("")}<span>90+ commits</span>`;
   const total = byDay.reduce((a, b) => a + b, 0);
   const weekdays = byDay.slice(0, 5).reduce((a, b) => a + b, 0);
   const bestH = byHour.indexOf(Math.max(...byHour));
