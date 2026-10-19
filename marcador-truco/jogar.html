@@ -89,7 +89,13 @@
   }
   .team.lead { background: var(--highlight); border: 2px solid var(--primary); }
   .team h2 { margin: 0; font-size: clamp(1.1rem, 3.4dvh, 1.7rem); font-weight: 900; letter-spacing: 0.04em; }
-  .team .mid { display: grid; justify-items: center; align-content: center; min-height: 0; }
+  /* O número grande também soma +1: área de toque maior que o botão. */
+  .team .mid {
+    display: grid; justify-items: center; align-content: center; align-self: stretch; width: 100%; min-height: 0;
+    padding: 0; border: 0; border-radius: 20px; background: transparent;
+  }
+  .team .mid:active:not(:disabled) .score { transform: scale(0.94); }
+  .team .mid:disabled { opacity: 1; cursor: default; }
   .team .score {
     display: block; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums;
     font-size: clamp(3.6rem, min(16dvh, 30vw), 9rem); transition: transform .2s;
@@ -223,21 +229,21 @@
   <div class="teams">
     <section class="team" data-team="nos" aria-label="NÓS">
       <h2>NÓS</h2>
-      <div class="mid">
+      <button class="mid" aria-label="Adicionar 1 ponto para NÓS">
         <span class="won">🏆 VENCEU</span>
         <span class="score" aria-live="polite">0</span>
         <span class="of">DE 12</span>
-      </div>
+      </button>
       <button class="plus" aria-label="Adicionar 1 ponto para NÓS">+1</button>
       <button class="minus" aria-label="Remover 1 ponto de NÓS">−1</button>
     </section>
     <section class="team" data-team="eles" aria-label="ELES">
       <h2>ELES</h2>
-      <div class="mid">
+      <button class="mid" aria-label="Adicionar 1 ponto para ELES">
         <span class="won">🏆 VENCEU</span>
         <span class="score" aria-live="polite">0</span>
         <span class="of">DE 12</span>
-      </div>
+      </button>
       <button class="plus" aria-label="Adicionar 1 ponto para ELES">+1</button>
       <button class="minus" aria-label="Remover 1 ponto de ELES">−1</button>
     </section>
@@ -334,6 +340,7 @@
         card.classList.toggle('lead', lead === t);
         card.classList.toggle('winner', win === t);
         card.querySelector('.plus').disabled = !!win;
+        card.querySelector('.mid').disabled = !!win;
         card.querySelector('.minus').disabled = score[t] === 0;
         if (t === changed) { el.classList.add('bump'); setTimeout(() => el.classList.remove('bump'), 180); }
       }
@@ -347,6 +354,7 @@
     for (const card of $$('.team')) {
       const t = card.dataset.team;
       card.querySelector('.plus').addEventListener('click', () => apply(t, 1));
+      card.querySelector('.mid').addEventListener('click', () => apply(t, 1));
       card.querySelector('.minus').addEventListener('click', () => apply(t, -1, `−1 para ${label(t)}`));
     }
     for (const b of $$('.hand')) {
