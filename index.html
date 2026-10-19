@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Eldevan Nery Junior</title>
+<meta name="description" content="Painel com números agregados do trabalho de Eldevan Nery Junior: commits, linguagens e ritmo de trabalho.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&family=Schibsted+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a git log printed as one ledger column; mono labels on a left rail, data on the right. */
+:root {
+  --bg: #ffffff;
+  --ink: #0a0d14;
+  --ink-2: #485063;
+  --muted: #7d8597;
+  --line: #e2e6ee;
+  --blue: #1d4ed8;
+  --blue-soft: #e8eefc;
+  --h0: #eef1f6; --h1: #c9d7f7; --h2: #8fadf0; --h3: #4a7be6; --h4: #1d4ed8;
+  --display: "Bricolage Grotesque", "Schibsted Grotesk", system-ui, sans-serif;
+  --body: "Schibsted Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #05070b; --ink: #f2f4f8; --ink-2: #a8b0c0; --muted: #6b7386; --line: #1b202b;
+    --blue: #5b8cff; --blue-soft: #0f1a33;
+    --h0: #10141d; --h1: #142a5c; --h2: #1f4bb0; --h3: #3f72ef; --h4: #8fb0ff;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #05070b; --ink: #f2f4f8; --ink-2: #a8b0c0; --muted: #6b7386; --line: #1b202b;
+  --blue: #5b8cff; --blue-soft: #0f1a33;
+  --h0: #10141d; --h1: #142a5c; --h2: #1f4bb0; --h3: #3f72ef; --h4: #8fb0ff;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 400 16px/1.55 var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1040px; margin: 0 auto;
+  padding-block: 56px 72px;
+  padding-left: max(20px, env(safe-area-inset-left, 0px));
+  padding-right: max(20px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 64px;
+}
+a { color: var(--blue); text-underline-offset: 3px; }
+a:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; border-radius: 2px; }
+.mono { font-family: var(--mono); }
+.label {
+  font: 500 12px/1.4 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted);
+}
+h1, h2 { text-wrap: balance; margin: 0; }
+
+/* Hero */
+header { display: grid; gap: 20px; }
+.cmd { font: 400 14px/1.4 var(--mono); color: var(--ink-2); }
+.cmd b { color: var(--blue); font-weight: 500; }
+h1 {
+  font: 800 clamp(44px, 8vw, 92px)/.95 var(--display); letter-spacing: -.035em;
+}
+h1 span { color: var(--blue); }
+.lede { max-width: 58ch; color: var(--ink-2); font-size: 18px; margin: 0; }
+.note {
+  margin: 0; display: inline-flex; align-items: center; gap: 10px; justify-self: start;
+  font: 500 13px/1.4 var(--mono); color: var(--ink);
+  padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; background: var(--blue-soft);
+}
+.note .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--blue); }
+.links { display: flex; flex-wrap: wrap; gap: 8px 20px; font: 500 14px/1.4 var(--mono); }
+
+/* Totals */
+.totals {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  border-top: 2px solid var(--ink); border-bottom: 1px solid var(--line);
+}
+.total { padding: 18px 16px 20px 0; display: grid; gap: 4px; align-content: start; }
+.total + .total { padding-left: 16px; border-left: 1px solid var(--line); }
+.total .n {
+  font: 800 clamp(30px, 4.6vw, 48px)/1 var(--display); letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+.total .n.plus { color: var(--blue); }
+
+/* Sections */
+section { display: grid; grid-template-columns: 200px 1fr; gap: 24px 40px; }
+.rail { display: grid; gap: 10px; align-content: start; }
+.rail h2 { font: 600 22px/1.2 var(--body); letter-spacing: -.01em; }
+.rail p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.facts { display: grid; gap: 12px; margin: 6px 0 0; }
+.facts div { display: grid; gap: 2px; }
+.facts dt { font: 500 11px/1.3 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 0; font: 500 15px/1.3 var(--mono); font-variant-numeric: tabular-nums; }
+.chart { min-width: 0; }
+.scroll { overflow-x: auto; }
+svg text { font-family: var(--mono); font-size: 11px; fill: var(--muted); }
+svg .grid { stroke: var(--line); stroke-width: 1; }
+svg .base { stroke: var(--ink-2); stroke-width: 1; }
+.bar { fill: var(--blue); }
+.bar.dim { fill: var(--h2); }
+.hit { fill: transparent; cursor: crosshair; }
+.hit:hover + .bar, .bar.on { fill: var(--ink); }
+
+/* Language bars */
+.langs { display: grid; gap: 10px; }
+.lang {
+  display: grid; grid-template-columns: 110px 1fr 120px; align-items: center; gap: 14px;
+  font-size: 15px;
+}
+.lang .track { height: 10px; background: var(--h0); border-radius: 0 4px 4px 0; }
+.lang .fill { height: 100%; background: var(--blue); border-radius: 0 4px 4px 0; min-width: 2px; }
+.lang .v { font: 400 13px/1 var(--mono); color: var(--ink-2); text-align: right; font-variant-numeric: tabular-nums; }
+.lang .v b { color: var(--ink); font-weight: 500; }
+.lang.other .fill { background: var(--h2); }
+
+/* Unit chart: one square per project */
+.units { display: grid; gap: 12px; }
+.unit { display: grid; grid-template-columns: 110px 1fr 36px; gap: 14px; align-items: center; font-size: 15px; }
+.dots { display: flex; flex-wrap: wrap; gap: 3px; }
+.dots i { width: 10px; height: 10px; border-radius: 2px; background: var(--blue); display: block; }
+.unit .v { font: 500 13px/1 var(--mono); text-align: right; font-variant-numeric: tabular-nums; }
+
+/* Heatmap */
+.cell { stroke: var(--bg); stroke-width: 2; }
+.cell:hover { stroke: var(--ink); stroke-width: 1.5; }
+.legend { display: flex; align-items: center; gap: 6px; margin-top: 12px; font: 400 12px/1 var(--mono); color: var(--muted); }
+.legend i { width: 14px; height: 14px; border-radius: 2px; display: block; }
+
+details { margin-top: 14px; font-size: 14px; color: var(--ink-2); }
+summary { cursor: pointer; font: 500 12px/1.4 var(--mono); color: var(--blue); letter-spacing: .04em; }
+table { border-collapse: collapse; margin-top: 10px; font: 400 12px/1.4 var(--mono); font-variant-numeric: tabular-nums; }
+th, td { padding: 4px 14px 4px 0; text-align: left; border-bottom: 1px solid var(--line); }
+th { color: var(--muted); font-weight: 500; }
+
+#tip {
+  position: fixed; pointer-events: none; z-index: 20;
+  background: var(--ink); color: var(--bg);
+  font: 500 12px/1.4 var(--mono); padding: 6px 9px; border-radius: 3px;
+  white-space: nowrap; transform: translate(-50%, calc(-100% - 10px));
+}
+
+footer {
+  border-top: 1px solid var(--line); padding-top: 20px;
+  display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 24px;
+  font: 400 13px/1.5 var(--mono); color: var(--muted);
+}
+footer p { margin: 0; max-width: 62ch; }
+
+@media (max-width: 760px) {
+  .wrap { gap: 48px; padding-block: 36px 56px; }
+  section { grid-template-columns: 1fr; }
+  .totals { grid-template-columns: repeat(2, 1fr); }
+  .total:nth-child(3) { padding-left: 0; border-left: 0; }
+  .total:nth-child(n+3) { border-top: 1px solid var(--line); }
+  .lang, .unit { grid-template-columns: 88px 1fr 92px; gap: 10px; }
+  .unit { grid-template-columns: 88px 1fr 30px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .fill { animation: grow .9s cubic-bezier(.2,.7,.2,1) both; transform-origin: left; }
+  @keyframes grow { from { transform: scaleX(.02); } }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="cmd">$ git log <b>--author=eldevanjr</b> --all --no-merges</div>
+    <h1>Eldevan Nery <span>Junior</span></h1>
+    <p class="lede">Desenvolvedor de software. Este painel mostra números agregados do meu trabalho: commits, linhas escritas, linguagens e horários. Nomes de projetos e de clientes ficam de fora.</p>
+    <p class="note"><span class="dot" aria-hidden="true"></span>Now using Claude Code to speed up dev</p>
+    <nav class="links" aria-label="Links">
+      <a href="https://github.com/eldevanjr">github.com/eldevanjr</a>
+    </nav>
+  </header>
+
+  <div class="totals" id="totals" aria-label="Totais"></div>
+
+  <section aria-labelledby="t-month">
+    <div class="rail">
+      <h2 id="t-month">Commits por mês</h2>
+      <p>Cada barra é um mês. Passe o cursor para ver o valor.</p>
+      <dl class="facts" id="f-month"></dl>
+    </div>
+    <div class="chart">
+      <div class="scroll"><svg id="month" role="img" aria-label="Gráfico de barras com commits por mês desde março de 2021"></svg></div>
+      <details>
+        <summary>Ver dados em tabela</summary>
+        <div class="scroll"><table id="month-table"></table></div>
+      </details>
+    </div>
+  </section>
+
+  <section aria-labelledby="t-lang">
+    <div class="rail">
+      <h2 id="t-lang">Linhas por linguagem</h2>
+      <p>Linhas adicionadas nos meus commits. Arquivos de bibliotecas de terceiros não entram.</p>
+    </div>
+    <div class="chart langs" id="langs"></div>
+  </section>
+
+  <section aria-labelledby="t-main">
+    <div class="rail">
+      <h2 id="t-main">Linguagem principal</h2>
+      <p>Um quadrado por projeto, pela linguagem com mais linhas.</p>
+    </div>
+    <div class="chart units" id="units"></div>
+  </section>
+
+  <section aria-labelledby="t-heat">
+    <div class="rail">
+      <h2 id="t-heat">Ritmo da semana</h2>
+      <p>Commits por dia da semana e hora do dia.</p>
+      <dl class="facts" id="f-heat"></dl>
+    </div>
+    <div class="chart">
+      <div class="scroll"><svg id="heat" role="img" aria-label="Mapa de calor com commits por dia da semana e hora"></svg></div>
+      <div class="legend" id="heat-legend"></div>
+    </div>
+  </section>
+
+  <footer>
+    <p>Dados de 82 repositórios git na minha máquina, contados por um script local. Só os totais são publicados.</p>
+    <p>Atualizado em 19 out 2026</p>
+  </footer>
+</div>
+<div id="tip" hidden></div>
+
+<script>
+const DATA = {
+  commits: 6419, authored: 665774, projects: 121,
+  langs: [["Java",286913],["JavaScript",172998],["TypeScript",129254],["CSS",24461],["Python",24011],["HTML",20670],["SQL",3727],["Shell",1646],["Groovy",871],["Dart",860],["Kotlin",227],["Objective-C",122],["Swift",8],["C",6]],
+  main: [["Java",47],["JavaScript",39],["Python",13],["TypeScript",11],["HTML",6],["Dart",1],["Groovy",1],["CSS",1],["Shell",1],["C++",1]],
+  month: {"2016-11":1,"2017-01":1,"2017-02":1,"2017-04":2,"2017-05":3,"2017-06":5,"2017-09":2,"2017-10":21,"2017-11":24,"2017-12":4,"2018-02":10,"2018-03":11,"2018-04":8,"2018-05":7,"2018-06":4,"2018-07":6,"2018-08":8,"2019-01":1,"2019-04":3,"2019-05":22,"2019-06":3,"2019-08":5,"2019-09":2,"2019-10":6,"2020-01":3,"2020-02":1,"2020-06":2,"2020-11":7,"2021-01":2,"2021-02":2,"2021-03":2,"2021-06":9,"2021-07":1,"2021-08":1,"2021-09":4,"2021-12":1,"2022-07":3,"2023-01":8,"2023-02":3,"2023-03":8,"2023-04":312,"2023-05":571,"2023-06":513,"2023-07":431,"2023-08":313,"2023-09":261,"2023-10":200,"2023-11":310,"2023-12":223,"2024-01":144,"2024-02":74,"2024-03":163,"2024-04":185,"2024-05":385,"2024-06":155,"2024-07":130,"2024-08":100,"2024-09":161,"2024-10":43,"2024-11":2,"2024-12":36,"2025-01":30,"2025-02":78,"2025-03":77,"2025-04":82,"2025-05":92,"2025-06":58,"2025-07":44,"2025-08":37,"2025-09":49,"2025-10":85,"2025-11":39,"2025-12":42,"2026-01":35,"2026-02":58,"2026-03":87,"2026-04":65,"2026-05":65,"2026-06":36,"2026-07":79,"2026-08":35,"2026-09":3,"2026-10":314},
+  grid: {"4-15":94,"5-1":11,"0-8":112,"4-14":101,"3-16":143,"2-10":105,"1-18":128,"0-18":141,"0-17":157,"0-15":188,"0-14":132,"4-10":92,"3-15":173,"4-8":94,"1-13":69,"1-10":124,"2-9":89,"0-16":130,"4-17":142,"4-9":108,"1-8":106,"4-18":117,"3-18":141,"2-17":181,"1-17":163,"2-18":84,"2-16":111,"1-14":138,"1-12":17,"1-16":97,"1-11":135,"2-15":164,"2-14":107,"3-17":125,"0-13":55,"3-13":76,"3-10":80,"3-14":145,"3-9":59,"3-8":110,"0-11":129,"0-9":100,"5-9":9,"2-11":134,"1-15":158,"4-16":95,"3-11":133,"4-11":145,"2-13":72,"2-8":80,"4-13":33,"4-19":31,"1-9":151,"0-10":180,"3-1":4,"1-0":4,"0-19":29,"4-12":10,"0-12":17,"2-21":6,"2-19":5,"4-21":31,"2-20":13,"1-19":13,"2-23":6,"3-12":37,"3-23":7,"4-0":3,"1-7":6,"2-22":3,"1-22":8,"4-7":8,"0-20":1,"4-20":5,"2-0":2,"2-12":6,"2-7":10,"1-20":10,"1-23":4,"4-23":7,"1-21":8,"5-16":5,"5-14":3,"5-12":1,"3-7":13,"4-6":2,"5-10":9,"0-23":1,"0-7":2,"6-12":20,"6-11":25,"6-10":18,"6-5":8,"6-0":6,"5-20":1,"5-19":4,"5-17":2,"5-13":4,"5-11":5,"5-8":4,"5-7":3,"5-0":8,"4-22":11,"6-21":1,"6-19":1,"6-22":1,"1-1":1,"2-1":1,"3-20":1,"0-6":1}
+};
+
+const fmt = n => n.toLocaleString("pt-BR");
+const MES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+const DIA = ["Seg","Ter","Qua","Qui","Sex","Sáb","Dom"];
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+const fact = (box, k, v) => { box.insertAdjacentHTML("beforeend", `<div><dt>${k}</dt><dd>${v}</dd></div>`); };
+
+/* tooltip */
+const tip = document.getElementById("tip");
+const show = (ev, html) => { tip.innerHTML = html; tip.hidden = false; tip.style.left = ev.clientX + "px"; tip.style.top = ev.clientY + "px"; };
+const hide = () => { tip.hidden = true; };
+
+/* totals */
+const usedLangs = DATA.langs.filter(([, v]) => v >= 100).length;
+document.getElementById("totals").innerHTML = [
+  [fmt(DATA.commits), "commits", ""],
+  ["+" + fmt(DATA.authored), "linhas adicionadas", "plus"],
+  [fmt(DATA.projects), "projetos", ""],
+  [usedLangs, "linguagens", ""],
+].map(([n, l, c]) => `<div class="total"><span class="n ${c}">${n}</span><span class="label">${l}</span></div>`).join("");
+
+/* months: fill gaps from first to last */
+const months = [];
+{
+  const keys = Object.keys(DATA.month).sort();
+  let [y, m] = keys[0].split("-").map(Number);
+  const [ly, lm] = keys[keys.length - 1].split("-").map(Number);
+  while (y < ly || (y === ly && m <= lm)) {
+    const k = `${y}-${String(m).padStart(2, "0")}`;
+    months.push({ k, y, m, v: DATA.month[k] || 0 });
+    if (++m > 12) { m = 1; y++; }
+  }
+}
+{
+  const svg = document.getElementById("month");
+  const W = 820, H = 260, L = 34, R = 6, T = 12, B = 26;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.style.minWidth = "560px"; svg.style.width = "100%";
+  const max = 600, y = v => T + (H - T - B) * (1 - v / max);
+  for (const t of [0, 200, 400, 600]) {
+    el("line", { x1: L, x2: W - R, y1: y(t), y2: y(t), class: t ? "grid" : "base" }, svg);
+    el("text", { x: L - 6, y: y(t) + 4, "text-anchor": "end" }, svg).textContent = t;
+  }
+  const band = (W - L - R) / months.length, bw = Math.max(3, band - 3);
+  const peak = months.reduce((a, b) => (b.v > a.v ? b : a));
+  months.forEach((d, i) => {
+    const x = L + i * band + (band - bw) / 2;
+    const g = el("g", {}, svg);
+    const hit = el("rect", { x: L + i * band, y: T, width: band, height: H - T - B, class: "hit" }, g);
+    if (d.v > 0) {
+      const top = y(d.v), bot = y(0), r = Math.min(2, bw / 2, bot - top);
+      el("path", { class: "bar", d: `M${x},${bot}V${top + r}Q${x},${top} ${x + r},${top}H${x + bw - r}Q${x + bw},${top} ${x + bw},${top + r}V${bot}Z` }, g);
+    }
+    const partial = d.k === "2026-10" ? " · parcial" : "";
+    hit.addEventListener("mousemove", ev => show(ev, `${MES[d.m - 1]} ${d.y} · ${fmt(d.v)} commits${partial}`));
+    hit.addEventListener("mouseleave", hide);
+    if (d.m === 1 || i === 0) el("text", { x: L + i * band, y: H - 8 }, svg).textContent = d.y;
+  });
+  const px = L + months.indexOf(peak) * band + band / 2;
+  el("text", { x: px + 8, y: y(peak.v) + 4, style: "fill: var(--ink)" }, svg).textContent = `pico ${fmt(peak.v)}`;
+
+  const f = document.getElementById("f-month");
+  fact(f, "Mês com mais commits", `${MES[peak.m - 1]} ${peak.y} · ${peak.v}`);
+  const last12 = months.slice(-13, -1).reduce((s, d) => s + d.v, 0);
+  fact(f, "Últimos 12 meses", `${fmt(last12)} commits`);
+  const years = {};
+  months.forEach(d => (years[d.y] = (years[d.y] || 0) + d.v));
+  fact(f, "Desde", `${MES[months[0].m - 1]} ${months[0].y}`);
+
+  const rows = Object.keys(years).map(yr => `<tr><td>${yr}</td>${MES.map((_, mi) => { const d = months.find(x => x.y == yr && x.m === mi + 1); return `<td>${d ? d.v : "–"}</td>`; }).join("")}<td><b>${fmt(years[yr])}</b></td></tr>`).join("");
+  document.getElementById("month-table").innerHTML = `<tr><th>Ano</th>${MES.map(m => `<th>${m}</th>`).join("")}<th>Total</th></tr>${rows}`;
+}
+
+/* languages: top 6 + others */
+{
+  const top = DATA.langs.slice(0, 6);
+  const rest = DATA.langs.slice(6).reduce((s, [, v]) => s + v, 0);
+  const rows = [...top, ["Outras", rest]];
+  const max = top[0][1];
+  document.getElementById("langs").innerHTML = rows.map(([n, v]) => {
+    const pct = (v / DATA.authored * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+    const title = n === "Outras" ? DATA.langs.slice(6).filter(([, x]) => x >= 100).map(([k]) => k).join(", ") : n;
+    return `<div class="lang ${n === "Outras" ? "other" : ""}" data-tip="${title}: ${fmt(v)} linhas">
+      <span>${n}</span>
+      <div class="track"><div class="fill" style="width:${(v / max * 100).toFixed(2)}%"></div></div>
+      <span class="v"><b>${pct}%</b> · ${v >= 1000 ? fmt(Math.round(v / 1000)) + " mil" : fmt(v)}</span>
+    </div>`;
+  }).join("");
+  document.querySelectorAll(".lang").forEach(r => {
+    r.addEventListener("mousemove", ev => show(ev, r.dataset.tip));
+    r.addEventListener("mouseleave", hide);
+  });
+}
+
+/* main language per project */
+{
+  const top = DATA.main.slice(0, 5);
+  const rest = DATA.main.slice(5).reduce((s, [, v]) => s + v, 0);
+  document.getElementById("units").innerHTML = [...top, ["Outras", rest]].map(([n, v]) =>
+    `<div class="unit"><span>${n}</span><div class="dots" aria-label="${v} projetos">${"<i></i>".repeat(v)}</div><span class="v">${v}</span></div>`
+  ).join("");
+}
+
+/* heatmap */
+{
+  const svg = document.getElementById("heat");
+  const L = 40, T = 22, cw = 32, ch = 26, W = L + cw * 24 + 4, H = T + ch * 7 + 4;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.style.minWidth = "620px"; svg.style.width = "100%";
+  const steps = [[0, "var(--h0)"], [1, "var(--h1)"], [40, "var(--h2)"], [100, "var(--h3)"], [150, "var(--h4)"]];
+  const color = v => steps.filter(([t]) => v >= t).pop()[1];
+  for (let h = 0; h < 24; h += 3) el("text", { x: L + h * cw + 2, y: 12 }, svg).textContent = `${h}h`;
+  const byDay = Array(7).fill(0), byHour = Array(24).fill(0);
+  for (let d = 0; d < 7; d++) {
+    el("text", { x: 0, y: T + d * ch + ch / 2 + 4 }, svg).textContent = DIA[d];
+    for (let h = 0; h < 24; h++) {
+      const v = DATA.grid[`${d}-${h}`] || 0;
+      byDay[d] += v; byHour[h] += v;
+      const c = el("rect", { x: L + h * cw, y: T + d * ch, width: cw, height: ch, rx: 3, class: "cell", style: `fill:${color(v)}` }, svg);
+      c.addEventListener("mousemove", ev => show(ev, `${DIA[d]} ${h}h–${h + 1}h · ${fmt(v)} commits`));
+      c.addEventListener("mouseleave", hide);
+    }
+  }
+  document.getElementById("heat-legend").innerHTML =
+    `<span>0</span>${steps.map(([, c]) => `<i style="background:${c}"></i>`).join("")}<span>150+ commits</span>`;
+  const total = byDay.reduce((a, b) => a + b, 0);
+  const weekdays = byDay.slice(0, 5).reduce((a, b) => a + b, 0);
+  const bestH = byHour.indexOf(Math.max(...byHour));
+  const bestD = byDay.indexOf(Math.max(...byDay));
+  const f = document.getElementById("f-heat");
+  fact(f, "Em dias úteis", (weekdays / total * 100).toLocaleString("pt-BR", { maximumFractionDigits: 1 }) + "%");
+  fact(f, "Hora mais ativa", `${bestH}h–${bestH + 1}h`);
+  fact(f, "Dia mais ativo", ["Segunda","Terça","Quarta","Quinta","Sexta","Sábado","Domingo"][bestD]);
+}
+</script>
+</body>
+</html>
