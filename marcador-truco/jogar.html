@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<title>Marcador de Truco – Placar</title>
+<meta name="description" content="Placar de truco NÓS x ELES: +1, Truco, Seis, Nove e Doze, desfazer e partida salva. Abra e jogue, sem instalar.">
+<meta name="theme-color" content="#060A13">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Truco">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:title" content="Marcador de Truco">
+<meta property="og:description" content="Placar de truco no celular. Abra o link e jogue.">
+<link rel="icon" type="image/png" href="icon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="manifest" href="jogar.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,900&display=swap" rel="stylesheet">
+<style>
+  /* Mesma paleta do app (lib/app/theme/app_colors.dart) e da página principal. */
+  :root {
+    --bg: #060A13;
+    --surface: #121826;
+    --surface-high: #1A2232;
+    --border: #283248;
+    --primary: #1F7BFF;
+    --bright: #4FA3FF;
+    --deep: #0A3A99;
+    --ink: #ffffff;
+    --muted: #9AA8C0;
+    --danger: #FF4D5E;
+    --red: #E8394D;
+    --highlight: linear-gradient(180deg, #1659D6, #0A2C70);
+    /* Altura útil da tela: dvh acompanha a barra do navegador no Android e no iPhone. */
+    --vh: 100vh;
+    --gap: clamp(8px, 1.6dvh, 14px);
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-l: env(safe-area-inset-left, 0px);
+    --safe-r: env(safe-area-inset-right, 0px);
+  }
+  @supports (height: 100dvh) { :root { --vh: 100dvh; } }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; }
+  body {
+    font-family: Roboto, "Segoe UI", system-ui, -apple-system, sans-serif; color: var(--ink); background: var(--bg);
+    -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-text-size-adjust: 100%;
+  }
+  button { font-family: inherit; color: inherit; touch-action: manipulation; cursor: pointer; }
+  button:disabled { opacity: 0.35; cursor: not-allowed; }
+  button:focus-visible { outline: 3px solid var(--bright); outline-offset: 2px; }
+  .suit { display: inline-block; width: 1em; height: 1em; vertical-align: -0.12em; }
+
+  /* A tela inteira é o placar. No desktop ele fica numa coluna do tamanho de um celular. */
+  .app {
+    height: var(--vh); width: 100%; max-width: 520px; margin: 0 auto;
+    display: grid; grid-template-rows: auto 1fr auto auto; gap: var(--gap);
+    padding: calc(var(--safe-t) + var(--gap)) calc(var(--safe-r) + 12px) calc(var(--safe-b) + var(--gap)) calc(var(--safe-l) + 12px);
+  }
+
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 44px; }
+  .top .title { line-height: 1.15; }
+  .top strong { display: block; letter-spacing: 0.1em; font-weight: 900; font-size: clamp(0.9rem, 2.2dvh, 1.05rem); }
+  .top span { color: var(--bright); font-size: clamp(0.75rem, 1.8dvh, 0.9rem); font-weight: 500; }
+  .icon-btn {
+    display: grid; place-items: center; width: 44px; height: 44px; border-radius: 14px; flex: none;
+    background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--muted);
+  }
+  .icon-btn svg { width: 22px; height: 22px; }
+  .top-actions { display: flex; gap: 8px; align-items: center; }
+  .install {
+    display: inline-flex; align-items: center; gap: 6px; height: 44px; padding: 0 14px; border-radius: 14px;
+    background: var(--primary); border: 1px solid var(--bright); font-weight: 700; font-size: 0.9rem;
+  }
+  .install svg { width: 20px; height: 20px; }
+  .install[hidden] { display: none; }
+  .ios-hint p b { color: var(--ink); }
+
+  .teams { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); min-height: 0; }
+  .team {
+    display: grid; grid-template-rows: auto 1fr auto auto; justify-items: center; align-items: center;
+    min-height: 0; padding: clamp(10px, 2dvh, 18px) 8px clamp(6px, 1.2dvh, 12px); border-radius: 28px; text-align: center;
+    background: var(--surface); border: 1px solid var(--border); transition: background .25s, border-color .25s;
+  }
+  .team.lead { background: var(--highlight); border: 2px solid var(--primary); }
+  .team h2 { margin: 0; font-size: clamp(1.1rem, 3.4dvh, 1.7rem); font-weight: 900; letter-spacing: 0.04em; }
+  .team .mid { display: grid; justify-items: center; align-content: center; min-height: 0; }
+  .team .score {
+    display: block; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums;
+    font-size: clamp(3.6rem, min(16dvh, 30vw), 9rem); transition: transform .2s;
+  }
+  .team .score.bump { transform: scale(1.12); }
+  .team .of { color: var(--bright); font-weight: 800; font-size: clamp(0.8rem, 1.9dvh, 1rem); letter-spacing: 0.06em; }
+  .team .won {
+    visibility: hidden; margin-top: 4px; padding: 2px 10px; border-radius: 999px;
+    background: #fff; color: var(--deep); font-weight: 900; font-size: clamp(0.7rem, 1.6dvh, 0.85rem);
+  }
+  .team.winner .won { visibility: visible; }
+  .plus {
+    width: 100%; max-width: 180px; height: clamp(60px, 11dvh, 104px); border-radius: 24px;
+    font-size: clamp(1.6rem, 4dvh, 2.4rem); font-weight: 900;
+    background: var(--surface-high); border: 2px solid var(--border);
+  }
+  .team.lead .plus { background: var(--primary); border-color: var(--bright); box-shadow: 0 8px 22px rgba(31, 123, 255, 0.45); }
+  .plus:active:not(:disabled) { transform: scale(0.96); }
+  .minus {
+    margin-top: 2px; min-width: 72px; min-height: 44px; border: 0; border-radius: 999px;
+    background: transparent; color: var(--muted); font-size: 1rem; font-weight: 600;
+  }
+
+  .controls { display: grid; gap: var(--gap); }
+  .label { text-align: center; color: var(--muted); letter-spacing: 0.3em; font-weight: 600; font-size: clamp(0.7rem, 1.6dvh, 0.85rem); }
+  .hands { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .hand {
+    min-height: clamp(56px, 9dvh, 84px); padding: 6px 0; border-radius: 18px;
+    background: var(--surface); border: 1.5px solid var(--border);
+  }
+  .hand b { display: block; font-size: clamp(1.5rem, 3.8dvh, 2.2rem); line-height: 1; font-weight: 900; color: var(--bright); }
+  .hand span { font-size: clamp(0.65rem, 1.5dvh, 0.8rem); font-weight: 700; letter-spacing: 0.04em; }
+  .hand:active:not(:disabled) { border-color: var(--primary); }
+  .actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .actions button {
+    min-height: clamp(46px, 7dvh, 56px); border-radius: 16px; background: var(--surface); border: 1px solid var(--border);
+    font-weight: 500; font-size: 0.95rem;
+  }
+  .reset::before { content: "🗑 "; }
+  .toast { margin: 0; text-align: center; color: var(--muted); font-weight: 500; min-height: 1.4em; font-size: clamp(0.8rem, 1.9dvh, 0.95rem); }
+
+  /* Folha "quem fez a mão" e confirmação: cobrem a tela inteira. */
+  .sheet, .confirm {
+    position: fixed; inset: 0; z-index: 10; display: none; background: rgba(6, 10, 19, 0.75);
+    padding: var(--safe-t) var(--safe-r) 0 var(--safe-l);
+  }
+  .sheet { align-items: flex-end; justify-content: center; }
+  .confirm { align-items: center; justify-content: center; }
+  .sheet.open, .confirm.open { display: flex; }
+  .sheet .panel {
+    width: 100%; max-width: 520px; padding: 22px 16px calc(var(--safe-b) + 16px); border-radius: 28px 28px 0 0;
+    background: var(--surface); border-top: 1px solid var(--border); text-align: center; animation: up .22s ease-out;
+  }
+  @keyframes up { from { transform: translateY(40px); opacity: 0; } }
+  .sheet h3 { margin: 0 0 12px; font-size: 1.4rem; }
+  .chip {
+    display: grid; place-items: center; align-content: center; width: 92px; height: 92px; margin: 0 auto 16px; border-radius: 50%;
+    background: rgba(10, 58, 153, 0.5); border: 2px solid var(--primary);
+  }
+  .chip b { font-size: 2.3rem; line-height: 1; color: var(--bright); font-weight: 900; }
+  .chip span { font-size: 0.75rem; font-weight: 700; }
+  .who { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .who button {
+    min-height: clamp(92px, 16dvh, 130px); border-radius: 22px; border: 2px solid var(--border); background: var(--surface-high);
+    font-weight: 800; font-size: 1.25rem;
+  }
+  .who button:first-child { background: var(--deep); border-color: var(--primary); }
+  .who .suit { display: block; margin: 0 auto 6px; font-size: 2rem; }
+  .cancel { width: 100%; min-height: 54px; border-radius: 20px; background: var(--surface-high); border: 1px solid var(--border); font-weight: 700; font-size: 1rem; }
+  .confirm .panel { width: min(360px, 88%); padding: 22px; border-radius: 24px; background: var(--surface-high); border: 1px solid var(--border); text-align: center; }
+  .confirm h3 { margin: 0; font-size: 1.3rem; }
+  .confirm p { color: var(--muted); margin: 8px 0 18px; font-size: 0.95rem; line-height: 1.5; }
+  .confirm .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .confirm .row button { min-height: 48px; border-radius: 999px; border: 0; font-weight: 700; font-size: 1rem; }
+  .confirm .no { background: transparent; color: var(--bright); }
+  .confirm .yes { background: var(--danger); color: #fff; }
+
+  /* Celular deitado (ou tela muito baixa): placar à esquerda, botões à direita. */
+  @media (orientation: landscape) and (max-height: 560px) {
+    .app {
+      max-width: 1000px; grid-template-columns: 1.4fr 1fr; grid-template-rows: auto 1fr auto;
+      column-gap: 16px; row-gap: 8px;
+      padding-top: calc(var(--safe-t) + 8px); padding-bottom: calc(var(--safe-b) + 8px);
+      padding-left: calc(var(--safe-l) + 16px); padding-right: calc(var(--safe-r) + 16px);
+    }
+    .top { grid-column: 1 / -1; min-height: 40px; }
+    .teams { grid-row: 2 / 4; }
+    .team { padding-top: 8px; border-radius: 22px; }
+    .team .score { font-size: clamp(3rem, 22dvh, 7rem); }
+    .plus { height: clamp(48px, 15dvh, 80px); }
+    .controls { align-content: center; }
+    .hands { grid-template-columns: repeat(2, 1fr); }
+    .hand { min-height: clamp(48px, 14dvh, 72px); }
+    .hand b { font-size: clamp(1.3rem, 6dvh, 2rem); }
+    .actions button { min-height: 44px; }
+    .toast { grid-column: 2; }
+    .who button { min-height: 76px; }
+  }
+
+  /* Telas bem estreitas (iPhone SE de 1ª geração, Androids de 320 px). */
+  @media (max-width: 340px) {
+    .app { padding-left: calc(var(--safe-l) + 8px); padding-right: calc(var(--safe-r) + 8px); }
+    .team { border-radius: 22px; }
+    .hands { gap: 6px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .team .score, .sheet .panel, .team { transition: none; animation: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="spade" viewBox="0 0 1 1"><path fill="currentColor" d="M.5.04C0 .4 0 .72.27.74.4.75.47.68.49.62.48.8.42.9.32.96H.68C.58.9.52.8.51.62.53.68.6.75.73.74 1 .72 1 .4.5.04Z"/></symbol>
+  <symbol id="heart" viewBox="0 0 1 1"><path fill="currentColor" d="M.5.92C0 .55 0 .15.27.12.4.1.48.2.5.3.52.2.6.1.73.12 1 .15 1 .55.5.92Z"/></symbol>
+</svg>
+
+<main class="app" id="demo">
+  <header class="top">
+    <div class="title"><strong>TRUCO PAULISTA</strong><span>Até 12 pontos</span></div>
+    <div class="top-actions">
+    <button class="install" id="install" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 4h2v8.2l3.3-3.3 1.4 1.4L12 16l-5.7-5.7 1.4-1.4 3.3 3.3V4ZM5 18h14v2H5z"/></svg>Instalar
+    </button>
+    <a class="icon-btn" href="./" aria-label="Sobre o Marcador de Truco">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11 10h2v7h-2zm0-3h2v2h-2zm1-5a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"/></svg>
+    </a>
+    </div>
+  </header>
+
+  <div class="teams">
+    <section class="team" data-team="nos" aria-label="NÓS">
+      <h2>NÓS</h2>
+      <div class="mid">
+        <span class="won">🏆 VENCEU</span>
+        <span class="score" aria-live="polite">0</span>
+        <span class="of">DE 12</span>
+      </div>
+      <button class="plus" aria-label="Adicionar 1 ponto para NÓS">+1</button>
+      <button class="minus" aria-label="Remover 1 ponto de NÓS">−1</button>
+    </section>
+    <section class="team" data-team="eles" aria-label="ELES">
+      <h2>ELES</h2>
+      <div class="mid">
+        <span class="won">🏆 VENCEU</span>
+        <span class="score" aria-live="polite">0</span>
+        <span class="of">DE 12</span>
+      </div>
+      <button class="plus" aria-label="Adicionar 1 ponto para ELES">+1</button>
+      <button class="minus" aria-label="Remover 1 ponto de ELES">−1</button>
+    </section>
+  </div>
+
+  <div class="controls">
+    <div class="label">VALOR DA MÃO</div>
+    <div class="hands">
+      <button class="hand" data-points="3" data-name="TRUCO"><b>3</b><span>TRUCO</span></button>
+      <button class="hand" data-points="6" data-name="SEIS"><b>6</b><span>SEIS</span></button>
+      <button class="hand" data-points="9" data-name="NOVE"><b>9</b><span>NOVE</span></button>
+      <button class="hand" data-points="12" data-name="DOZE"><b>12</b><span>DOZE</span></button>
+    </div>
+    <div class="actions">
+      <button class="undo">↶ Desfazer</button>
+      <button class="reset">Zerar partida</button>
+    </div>
+  </div>
+
+  <p class="toast" id="toast" aria-live="polite"></p>
+
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+    <div class="panel">
+      <h3 id="sheet-title">Quem fez a mão?</h3>
+      <div class="chip"><b id="chip-points">3</b><span id="chip-name">TRUCO</span></div>
+      <div class="who">
+        <button data-team="nos"><svg class="suit"><use href="#spade"/></svg>NÓS</button>
+        <button data-team="eles"><svg class="suit" style="color: var(--red)"><use href="#heart"/></svg>ELES</button>
+      </div>
+      <button class="cancel">Cancelar</button>
+    </div>
+  </div>
+  <div class="ios-hint confirm" id="ios-hint" role="dialog" aria-modal="true" aria-labelledby="ios-title">
+    <div class="panel">
+      <h3 id="ios-title">Instalar no iPhone</h3>
+      <p>No Safari, toque em <b>Compartilhar</b> <svg class="suit" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 7.5 6.5l1.4 1.4L11 5.8V15h2V5.8l2.1 2.1 1.4-1.4L12 2ZM5 10v10h14V10h-3v2h1v6H7v-6h1v-2H5Z"/></svg> e depois em <b>Adicionar à Tela de Início</b>.</p>
+      <div class="row"><span></span><button class="no ios-ok">Entendi</button></div>
+    </div>
+  </div>
+  <div class="confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+    <div class="panel">
+      <h3 id="confirm-title">Zerar partida?</h3>
+      <p>O placar das duas equipes volta para 0 e o histórico é apagado.</p>
+      <div class="row"><button class="no">Cancelar</button><button class="yes">Zerar</button></div>
+    </div>
+  </div>
+</main>
+
+<script>
+  // Mesmas regras do app e do placar da página principal: alvo 12, mão que
+  // passa do alvo para em 12, -1 nunca deixa negativo, desfazer reverte a
+  // última marcação e o placar bloqueia +1 e mãos depois da vitória.
+  // Extra desta página: a partida fica salva no aparelho e a tela não apaga.
+  (() => {
+    const TARGET = 12;
+    const KEY = 'marcador-truco:partida';
+    const demo = document.getElementById('demo');
+    const score = { nos: 0, eles: 0 };
+    const history = [];
+    let pendingHand = null;
+    const $ = (sel) => demo.querySelector(sel);
+    const $$ = (sel) => demo.querySelectorAll(sel);
+    const toast = document.getElementById('toast');
+    const winner = () => ['nos', 'eles'].find((t) => score[t] >= TARGET) || null;
+    const label = (t) => (t === 'nos' ? 'NÓS' : 'ELES');
+    const buzz = (ms) => { try { navigator.vibrate && navigator.vibrate(ms); } catch (_) {} };
+
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY));
+      if (saved && Number.isInteger(saved.nos) && Number.isInteger(saved.eles)) {
+        score.nos = saved.nos; score.eles = saved.eles;
+        if (Array.isArray(saved.history)) history.push(...saved.history);
+      }
+    } catch (_) {}
+    const save = () => {
+      try { localStorage.setItem(KEY, JSON.stringify({ nos: score.nos, eles: score.eles, history: history.slice(-200) })); } catch (_) {}
+    };
+
+    function apply(team, points, message) {
+      const before = score[team];
+      score[team] = Math.max(0, Math.min(TARGET, before + points));
+      history.push({ team, delta: score[team] - before });
+      buzz(winner() ? [40, 60, 40] : 12);
+      render(team, message);
+    }
+
+    function render(changed, message) {
+      const win = winner();
+      const lead = score.nos === score.eles ? null : score.nos > score.eles ? 'nos' : 'eles';
+      for (const card of $$('.team')) {
+        const t = card.dataset.team;
+        const el = card.querySelector('.score');
+        el.textContent = score[t];
+        card.classList.toggle('lead', lead === t);
+        card.classList.toggle('winner', win === t);
+        card.querySelector('.plus').disabled = !!win;
+        card.querySelector('.minus').disabled = score[t] === 0;
+        if (t === changed) { el.classList.add('bump'); setTimeout(() => el.classList.remove('bump'), 180); }
+      }
+      for (const b of $$('.hand')) b.disabled = !!win;
+      $('.undo').disabled = history.length === 0;
+      $('.reset').disabled = history.length === 0;
+      toast.textContent = win ? `${label(win)} ${win === 'nos' ? 'VENCEMOS' : 'VENCERAM'}! ${score.nos} x ${score.eles}` : message || '';
+      save();
+    }
+
+    for (const card of $$('.team')) {
+      const t = card.dataset.team;
+      card.querySelector('.plus').addEventListener('click', () => apply(t, 1));
+      card.querySelector('.minus').addEventListener('click', () => apply(t, -1, `−1 para ${label(t)}`));
+    }
+    for (const b of $$('.hand')) {
+      b.addEventListener('click', () => {
+        pendingHand = { points: +b.dataset.points, name: b.dataset.name };
+        document.getElementById('chip-points').textContent = pendingHand.points;
+        document.getElementById('chip-name').textContent = pendingHand.name;
+        $('.sheet').classList.add('open');
+        $('.who button').focus();
+      });
+    }
+    function closeSheet(team) {
+      if (!pendingHand) return; // ignora toques repetidos, como no app
+      const hand = pendingHand;
+      pendingHand = null;
+      $('.sheet').classList.remove('open');
+      if (team) apply(team, hand.points, `${hand.name}! +${hand.points} para ${label(team)}`);
+    }
+    for (const b of $$('.who button')) b.addEventListener('click', () => closeSheet(b.dataset.team));
+    $('.cancel').addEventListener('click', () => closeSheet(null));
+    $('.sheet').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeSheet(null); });
+    $('.undo').addEventListener('click', () => {
+      const last = history.pop();
+      if (!last) return;
+      score[last.team] -= last.delta;
+      buzz(12);
+      render(last.team, 'Última marcação desfeita');
+    });
+    const closeConfirm = () => $('.confirm').classList.remove('open');
+    $('.reset').addEventListener('click', () => { $('.confirm').classList.add('open'); $('.confirm .no').focus(); });
+    $('.confirm .no').addEventListener('click', closeConfirm);
+    $('.confirm').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeConfirm(); });
+    $('.confirm .yes').addEventListener('click', () => {
+      score.nos = 0; score.eles = 0; history.length = 0;
+      closeConfirm();
+      render(null, 'Partida zerada');
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      closeSheet(null);
+      closeConfirm();
+      document.getElementById('ios-hint').classList.remove('open');
+    });
+
+    // Mantém a tela acesa durante a partida (Chrome no Android, Safari 16.4+ no iPhone).
+    let lock = null;
+    const keepAwake = async () => {
+      if (!('wakeLock' in navigator) || lock || document.visibilityState !== 'visible') return;
+      try { lock = await navigator.wakeLock.request('screen'); lock.addEventListener('release', () => { lock = null; }); } catch (_) {}
+    };
+    document.addEventListener('pointerdown', keepAwake, { passive: true });
+    document.addEventListener('visibilitychange', keepAwake);
+
+    // Evita o zoom por toque duplo no iOS, que ignora touch-action em alguns casos.
+    let lastTouch = 0;
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouch < 350 && e.target.closest('button')) e.preventDefault();
+      lastTouch = now;
+    }, { passive: false });
+
+    // PWA: funciona offline e pode ser instalado na tela inicial.
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+    }
+    const installBtn = document.getElementById('install');
+    const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    let deferred = null;
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferred = e; installBtn.hidden = false; });
+    window.addEventListener('appinstalled', () => { deferred = null; installBtn.hidden = true; });
+    if (ios && !standalone) installBtn.hidden = false;
+    const hint = document.getElementById('ios-hint');
+    installBtn.addEventListener('click', async () => {
+      if (deferred) {
+        deferred.prompt();
+        await deferred.userChoice.catch(() => {});
+        deferred = null; installBtn.hidden = true;
+      } else if (ios) {
+        hint.classList.add('open'); hint.querySelector('.ios-ok').focus();
+      }
+    });
+    hint.querySelector('.ios-ok').addEventListener('click', () => hint.classList.remove('open'));
+    hint.addEventListener('click', (e) => { if (e.target === hint) hint.classList.remove('open'); });
+
+    render(null, history.length ? 'Partida retomada' : '');
+  })();
+</script>
+</body>
+</html>
