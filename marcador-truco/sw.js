@@ -1,6 +1,6 @@
 // Service worker do placar: guarda a página e os ícones para funcionar offline.
 // Troque VERSION a cada mudança em jogar.html para os aparelhos baixarem a nova versão.
-const VERSION = 'truco-v2';
+const VERSION = 'truco-v3';
 const ASSETS = ['jogar.html', 'jogar.webmanifest', 'icon.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png'];
 
 self.addEventListener('install', (e) => {

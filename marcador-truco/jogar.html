@@ -46,7 +46,8 @@
   @supports (height: 100dvh) { :root { --vh: 100dvh; } }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; }
+  /* touch-action: manipulation tira o zoom por toque duplo sem atrasar toques rápidos. */
+  html, body { height: 100%; margin: 0; overflow: hidden; overscroll-behavior: none; touch-action: manipulation; }
   body {
     font-family: Roboto, "Segoe UI", system-ui, -apple-system, sans-serif; color: var(--ink); background: var(--bg);
     -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-text-size-adjust: 100%;
@@ -283,7 +284,7 @@
       <div class="row"><span></span><button class="no ios-ok">Entendi</button></div>
     </div>
   </div>
-  <div class="confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+  <div class="confirm" id="confirm" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
     <div class="panel">
       <h3 id="confirm-title">Zerar partida?</h3>
       <p>O placar das duas equipes volta para 0 e o histórico é apagado.</p>
@@ -383,11 +384,11 @@
       buzz(12);
       render(last.team, 'Última marcação desfeita');
     });
-    const closeConfirm = () => $('.confirm').classList.remove('open');
-    $('.reset').addEventListener('click', () => { $('.confirm').classList.add('open'); $('.confirm .no').focus(); });
-    $('.confirm .no').addEventListener('click', closeConfirm);
-    $('.confirm').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeConfirm(); });
-    $('.confirm .yes').addEventListener('click', () => {
+    const closeConfirm = () => $('#confirm').classList.remove('open');
+    $('.reset').addEventListener('click', () => { $('#confirm').classList.add('open'); $('#confirm .no').focus(); });
+    $('#confirm .no').addEventListener('click', closeConfirm);
+    $('#confirm').addEventListener('click', (e) => { if (e.target === e.currentTarget) closeConfirm(); });
+    $('#confirm .yes').addEventListener('click', () => {
       score.nos = 0; score.eles = 0; history.length = 0;
       closeConfirm();
       render(null, 'Partida zerada');
@@ -407,14 +408,6 @@
     };
     document.addEventListener('pointerdown', keepAwake, { passive: true });
     document.addEventListener('visibilitychange', keepAwake);
-
-    // Evita o zoom por toque duplo no iOS, que ignora touch-action em alguns casos.
-    let lastTouch = 0;
-    document.addEventListener('touchend', (e) => {
-      const now = Date.now();
-      if (now - lastTouch < 350 && e.target.closest('button')) e.preventDefault();
-      lastTouch = now;
-    }, { passive: false });
 
     // PWA: funciona offline e pode ser instalado na tela inicial.
     if ('serviceWorker' in navigator) {
